@@ -1,0 +1,30 @@
+# Node modülleri ve paket yöneticisi kalıntıları
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Çevresel değişkenler ve API anahtarları (ÇOK ÖNEMLİ: Claude/OpenAI key'leri sızmasın)
+.env
+*.env.local
+*.env.development
+*.env.production
+
+# İşletim sistemi ve editör dosyaları
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Geçici raporlar veya test çıktıları (İsteğe bağlı, /reports altındaki JSON'lar hariç tutulmasın istiyorsan buraya dokunma)
+# temp/

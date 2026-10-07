@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "UX & Accessibility Audit Tool",
+  "version": "1.0.0",
+  "description": "Deterministik kurallar ve LLM (Don Norman ilkeleri) ile web sayfası UX ve erişilebilirlik denetim aracı.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": "assets/icon.png"
+  },
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/axe.min.js", "content/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["modules/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
