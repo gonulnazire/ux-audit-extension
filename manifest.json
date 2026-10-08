@@ -9,8 +9,8 @@
     "storage"
   ],
   "action": {
-    "default_popup": "popup/popup.html",
-    "default_icon": "assets/icon.png"
+    "default_popup": "popup/popup.html"
+    
   },
   "background": {
     "service_worker": "background/background.js"
