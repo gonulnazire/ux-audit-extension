@@ -14,38 +14,38 @@ document.getElementById('audit-btn').addEventListener('click', async () => {
   exportBtn.disabled = true;
 
   try {
-    // 1. Aktif sekmeyi bul
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-    // 2. Deterministik Analizi Çalıştır
+    // 1. Deterministik Analizi Çalıştır
     chrome.tabs.sendMessage(tab.id, { action: "RUN_DETERMINISTIC_AUDIT" }, async (response) => {
       let deterministicResults = response && response.success ? response.data : {};
 
-      // 3. LLM Yorumsal Analiz için DOM verisini hazırla ve enjekte et
-      let domSummaryText = "";
+      // 2. Sayfaya Özel DOM Özetini Al
+      let domSummary = { totalButtons: 0, totalInputs: 0, imagesWithoutAlt: 0, unlabeledInputsCount: 0 };
       try {
         const injectionResult = await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           func: prepareDOMForLLM
         });
-        domSummaryText = injectionResult[0]?.result || "[]";
+        if (injectionResult[0]?.result) {
+          domSummary = injectionResult[0].result;
+        }
       } catch (e) {
-        console.warn("DOM özet verisi alınamadı, boş devam ediliyor:", e);
+        console.warn("DOM özet verisi alınamadı:", e);
       }
 
-      // 4. LLM Analizini Çalıştır
+      // 3. Yorumsal Analizi Çalıştır (Sayfaya Dinamik Uyararlanır)
       let llmFindings = [];
       try {
-        const llmResult = await analyzeWithLLM(domSummaryText);
-        llmFindings = llmResult.findings || llmResult.mockFindings || [];
+        const llmResult = await analyzeWithLLM(domSummary);
+        llmFindings = llmResult.findings || [];
       } catch (e) {
-        console.warn("LLM analizi çalıştırılamadı, fallback kullanılıyor.");
+        console.warn("LLM analizi çalıştırılamadı.");
       }
 
-      // 5. Skorları Hesapla
+      // 4. Skorları Hesapla
       const scores = calculateScores(deterministicResults, llmFindings);
 
-      // Rapor nesnesini sakla
       latestReportData = {
         url: tab.url,
         timestamp: new Date().toISOString(),
@@ -54,7 +54,7 @@ document.getElementById('audit-btn').addEventListener('click', async () => {
         llmFindings
       };
 
-      // 6. Arayüze Yansit
+      // 5. Arayüze Yansit
       document.getElementById('final-score').innerText = `${scores.finalScore} / 100`;
       document.getElementById('det-score').innerText = `${scores.deterministicScore}`;
       document.getElementById('ai-score').innerText = `${scores.llmScore}`;
@@ -62,7 +62,6 @@ document.getElementById('audit-btn').addEventListener('click', async () => {
       const listEl = document.getElementById('findings-list');
       listEl.innerHTML = '';
 
-      // Tüm bulguları listeye ekle
       const allIssues = [
         ...(deterministicResults.axeViolations || []),
         ...(deterministicResults.touchTargets || []),
@@ -78,7 +77,7 @@ document.getElementById('audit-btn').addEventListener('click', async () => {
         allIssues.forEach(issue => {
           const li = document.createElement('li');
           li.className = (issue.severity || 'orta').toLowerCase();
-          li.innerHTML = `<strong>[${issue.rule || issue.principle || 'Genel'}]</strong> ${issue.issue || issue.description} <br><small>Öneri: ${issue.recommendation || 'Belirtilmemiş'}</small>`;
+          li.innerHTML = `<strong>[${issue.rule || issue.principle || 'Genel'}]</strong> ${issue.issue || issue.description} <br><small>Öneri: ${issue.recommendation || issue.suggestion || 'Belirtilmemiş'}</small>`;
           listEl.appendChild(li);
         });
       }
@@ -91,11 +90,10 @@ document.getElementById('audit-btn').addEventListener('click', async () => {
   } catch (err) {
     console.error("Denetim sırasında hata oluştu:", err);
     loadingEl.classList.add('hidden');
-    alert("Analiz başlatılırken bir hata oluştu. Sayfayı yenileyip tekrar deneyin.");
+    alert("Analiz başlatılırken bir hata oluştu.");
   }
 });
 
-// JSON Olarak Dışa Aktar
 document.getElementById('export-btn').addEventListener('click', () => {
   if (!latestReportData) return;
 
@@ -106,4 +104,4 @@ document.getElementById('export-btn').addEventListener('click', () => {
   document.body.appendChild(downloadAnchor);
   downloadAnchor.click();
   downloadAnchor.remove();
-});
+}); 
