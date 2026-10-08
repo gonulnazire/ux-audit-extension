@@ -1,15 +1,20 @@
 {
-  "schemaVersion": 1,
-  "validationStatus": "NOT_RUN",
-  "category": "Turkish e-commerce",
-  "site": null,
-  "reason": "No public Turkish e-commerce site has been analyzed in the running Chrome extension. This file is a status placeholder, not a test result.",
-  "requiredValidation": [
-    "Choose a public page that does not require sign-in and contains no personal data.",
-    "Run the same page three times and record each Norman principle score.",
-    "Manually compare one keyboard and screen-reader task.",
-    "Review every reported AI evidence item on the page."
-  ],
-  "runs": [],
-  "manualReview": null
+  "url": "https://chromewebstore.google.com/?hl=tr&pli=1",
+  "timestamp": "2026-10-08T15:34:24.850Z",
+  "scores": {
+    "finalScore": 98,
+    "deterministicScore": 100,
+    "llmScore": 95
+  },
+  "deterministicResults": {},
+  "llmFindings": [
+    {
+      "principle": "Tutarlılık",
+      "element": "nav",
+      "selector": "nav, header",
+      "issue": "Navigasyon elementleri standart kullanıcı alışkanlıklarına uyumlu gözden geçirilmeli.",
+      "severity": "Orta",
+      "recommendation": "Menü öğelerini standart konumlarda tutun."
+    }
+  ]
 }
