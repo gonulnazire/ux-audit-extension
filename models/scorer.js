@@ -1,91 +1,91 @@
-// models/scorer.js
+export const DETERMINISTIC_WEIGHTS = {
+  axe: 40,
+  contrast: 20,
+  targetSize: 15,
+  altText: 10,
+  formLabels: 10,
+  pageLanguage: 5
+};
 
-/**
- * Ağırlıklı Skorlama Modeli
- * 
- * Açıklama ve Gerekçe (README için):
- * - Başlangıç skoru 100 puandır.
- * - Deterministik katman (WCAG ve teknik hatalar) toplam skora %50 etki eder.
- * - LLM yorumsal katmanı (Don Norman ilkeleri) toplam skora %50 etki eder.
- * - Hatalar şiddet derecelerine göre ceza puanı alır:
- *   * Kritik: -15 puan
- *   * Yüksek: -10 puan
- *   * Orta: -5 puan
- *   * Düşük: -2 puan
- * - Skor 0'ın altına düşemez (Minimum 0).
- */
+export const NORMAN_WEIGHTS = {
+  'Görünürlük': 1 / 6,
+  'Geri Bildirim': 1 / 6,
+  'Kısıtlar': 1 / 6,
+  'Eşleme': 1 / 6,
+  'Tutarlılık': 1 / 6,
+  'Sağlarlık (Affordance)': 1 / 6
+};
 
-export function calculateScores(deterministicResults, llmFindings) {
-  // 1. Deterministik Skor Hesaplama
-  let deterministicPenalties = 0;
-  
-  // Axe-core ihlalleri
-  if (deterministicResults.axeViolations) {
-    deterministicResults.axeViolations.forEach(v => {
-      deterministicPenalties += (v.severity === 'Kritik' ? 15 : 10);
-    });
-  }
-  
-  // Dokunma hedefi ihlalleri
-  if (deterministicResults.touchTargets) {
-    deterministicResults.touchTargets.forEach(v => {
-      deterministicPenalties += 10; // Yüksek
-    });
-  }
+const PENALTIES = { 'Kritik': 15, 'Yüksek': 10, 'Orta': 5, 'Düşük': 2 };
 
-  // Eksik alt metinler
-  if (deterministicResults.missingAlts) {
-    deterministicResults.missingAlts.forEach(v => {
-      deterministicPenalties += 15; // Kritik
-    });
-  }
+function uniqueFindings(findings) {
+  const seen = new Set();
+  return findings.filter(finding => {
+    const key = `${finding.category}|${finding.rule}|${finding.selector}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
-  // Etiketsiz form alanları
-  if (deterministicResults.unlabeledInputs) {
-    deterministicResults.unlabeledInputs.forEach(v => {
-      deterministicPenalties += 15; // Kritik
-    });
-  }
+function weightedMean(scores, weights) {
+  let weightedTotal = 0;
+  let weightTotal = 0;
+  Object.entries(weights).forEach(([key, weight]) => {
+    if (Number.isFinite(scores[key])) {
+      weightedTotal += scores[key] * weight;
+      weightTotal += weight;
+    }
+  });
+  return weightTotal ? Math.round(weightedTotal / weightTotal) : null;
+}
 
-  // Sayfa dili eksikliği
-  if (deterministicResults.pageLanguage && deterministicResults.pageLanguage.length > 0) {
-    deterministicPenalties += 10;
-  }
+export function calculateScores(audit, llmAnalysis = null) {
+  const findings = uniqueFindings(audit.findings || []);
+  const categoryScores = {};
+  Object.entries(DETERMINISTIC_WEIGHTS).forEach(([category, weight]) => {
+    const applicable = category === 'axe'
+      ? audit.checks?.axeCore === 'completed'
+      : category === 'contrast'
+        ? !audit.checks?.contrastCheckTruncated && !audit.checks?.contrastElementsUnmeasurable
+        : category === 'targetSize'
+          ? !audit.checks?.touchTargetCheckTruncated
+          : true;
+    const penalties = findings.filter(finding => finding.category === category)
+      .reduce((sum, finding) => sum + (PENALTIES[finding.severity] || PENALTIES.Orta), 0);
+    categoryScores[category] = {
+      score: applicable ? Math.max(0, 100 - penalties) : null,
+      weight,
+      findings: findings.filter(finding => finding.category === category).length
+    };
+  });
 
-  let deterministicScore = Math.max(0, 100 - deterministicPenalties);
-
-  // 2. LLM Yorumsal Skor Hesaplama (Don Norman İlkeleri)
-  let llmPenalties = 0;
-  if (llmFindings && Array.isArray(llmFindings)) {
-    llmFindings.forEach(f => {
-      const sev = f.severity ? f.severity.toLowerCase() : 'orta';
-      if (sev.includes('kritik')) llmPenalties += 15;
-      else if (sev.includes('yüksek')) llmPenalties += 10;
-      else if (sev.includes('orta')) llmPenalties += 5;
-      else llmPenalties += 2;
-    });
-  }
-
-  let llmScore = Math.max(0, 100 - llmPenalties);
-
-  // 3. Ağırlıklı Toplam Skor (%50 Deterministik + %50 LLM)
-  const finalScore = Math.round((deterministicScore * 0.5) + (llmScore * 0.5));
+  const deterministicScore = weightedMean(
+    Object.fromEntries(Object.entries(categoryScores).map(([key, value]) => [key, value.score])),
+    DETERMINISTIC_WEIGHTS
+  );
+  const principleScores = Object.fromEntries(
+    Object.keys(NORMAN_WEIGHTS).map(principle => {
+      const item = llmAnalysis?.principleScores?.find(score => score.principle === principle);
+      return [principle, Number.isFinite(item?.score) ? item.score : null];
+    })
+  );
+  const llmScore = weightedMean(principleScores, NORMAN_WEIGHTS);
+  const finalScore = llmScore === null
+    ? deterministicScore
+    : Math.round(deterministicScore * 0.7 + llmScore * 0.3);
 
   return {
     finalScore,
     deterministicScore,
     llmScore,
+    categories: categoryScores,
+    principles: principleScores,
+    weights: { deterministic: llmScore === null ? 1 : 0.7, interpretive: llmScore === null ? 0 : 0.3 },
     breakdown: {
-      deterministicPenalties,
-      llmPenalties,
-      totalIssuesFound: (
-        (deterministicResults.axeViolations?.length || 0) +
-        (deterministicResults.touchTargets?.length || 0) +
-        (deterministicResults.missingAlts?.length || 0) +
-        (deterministicResults.unlabeledInputs?.length || 0) +
-        (deterministicResults.pageLanguage?.length || 0) +
-        (llmFindings?.length || 0)
-      )
+      deterministicPenalties: 100 - deterministicScore,
+      llmPenalties: llmScore === null ? null : 100 - llmScore,
+      totalIssuesFound: findings.length + (llmAnalysis?.findings?.length || 0)
     }
   };
 }

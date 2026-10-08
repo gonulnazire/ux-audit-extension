@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "validationStatus": "NOT_RUN",
+  "category": "Turkish e-commerce",
+  "site": null,
+  "reason": "No public Turkish e-commerce site has been analyzed in the running Chrome extension. This file is a status placeholder, not a test result.",
+  "requiredValidation": [
+    "Choose a public page that does not require sign-in and contains no personal data.",
+    "Run the same page three times and record each Norman principle score.",
+    "Manually compare one keyboard and screen-reader task.",
+    "Review every reported AI evidence item on the page."
+  ],
+  "runs": [],
+  "manualReview": null
+}

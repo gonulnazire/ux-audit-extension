@@ -1,0 +1,7 @@
+# Yansıtma notu — doğrulama sonrası kişiselleştirin
+
+Bu not, kodlama oturumunda görülen somut örneklere dayalı bir taslaktır; kişisel deneyiminizi ve gerçek site testlerinin sonuçlarını eklemeden teslim etmeyin. AI, MV3 akışını, kategori bazlı skorlama iskeletini ve kanıt/mahremiyet kontrollerini hızlandırdı. Özellikle her AI bulgusunu sayfada bulunan bir kanıt kimliğine bağlama yaklaşımı, yorumu ölçümden ayırmaya yardımcı oldu.
+
+AI'ın yanıltabildiği nokta, doğrulanmamış UX yargılarını kesin bulgu gibi sunmasıdır. Prototipte sayfada gerçek bir hover testi yapılmadan genel “hover geri bildirimi zayıf” ve navigasyon tutarsızlığı iddiaları üretiliyordu. Bu ifadelerin DOM ölçümüyle kanıtlanmadığı görüldüğü için kaldırıldı. Başka bir sorun, kontrol adının anonimleştirilmiş kanıt paketine ham e-posta olarak sızabildiğini testin göstermesiydi; istek şeması daraltılarak kontrol metni, form verileri, URL ve CSS seçicileri AI gönderiminden çıkarıldı.
+
+Bu düzeltmeler riski azaltır ama AI yorumlarının anlamsal olarak doğru olduğunu kanıtlamaz. Geçerli bir DOM referansı bile iddianın o öğeden gerçekten çıkarılabildiğini garanti etmez; bu yüzden her iddia insan tarafından incelenmelidir. Henüz üç gerçek sitede tekrarlı skor ölçümü, klavye/ekran okuyucu görevi, sağlık senaryoları veya saha halüsinasyon oranı çalıştırılmadı. Sonuçlar elde edildiğinde bu taslağı kendi deneyiminizle güncelleyin; ölçmediğiniz sonucu başarı olarak yazmayın.

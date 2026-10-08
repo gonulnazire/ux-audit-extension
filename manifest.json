@@ -2,11 +2,14 @@
   "manifest_version": 3,
   "name": "UX & Accessibility Audit Tool",
   "version": "1.0.0",
-  "description": "Deterministik kurallar ve LLM (Don Norman ilkeleri) ile web sayfası UX ve erişilebilirlik denetim aracı.",
+  "description": "Deterministik kurallarla web sayfaları için erişilebilirlik denetim aracı.",
   "permissions": [
     "activeTab",
     "scripting",
     "storage"
+  ],
+  "host_permissions": [
+    "https://api.anthropic.com/*"
   ],
   "action": {
     "default_popup": "popup/popup.html"
@@ -15,17 +18,7 @@
   "background": {
     "service_worker": "background/background.js"
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content/axe.min.js", "content/content.js"],
-      "run_at": "document_idle"
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["modules/*"],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://api.anthropic.com"
+  }
 }
