@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "validationStatus": "NOT_RUN",
+  "category": "health",
+  "site": null,
+  "reason": "No public health site has been analyzed in the running Chrome extension. This file is a status placeholder, not a test result.",
+  "requiredValidation": [
+    "Choose a public health information page without a signed-in session or personal health data.",
+    "Run the same page three times and record each Norman principle score.",
+    "Manually complete the grandmother and 3 a.m. emergency scenarios.",
+    "Review every reported AI evidence item on the page."
+  ],
+  "runs": [],
+  "manualReview": null
+}
