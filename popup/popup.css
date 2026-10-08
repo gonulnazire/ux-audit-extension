@@ -1,0 +1,123 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 380px;
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.container {
+  padding: 16px;
+}
+
+h2 {
+  font-size: 16px;
+  margin: 0 0 4px 0;
+  color: #1a1a1a;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.primary-btn {
+  background-color: #0066cc;
+  color: white;
+}
+
+.primary-btn:hover {
+  background-color: #0052a3;
+}
+
+.secondary-btn {
+  background-color: #e4e6eb;
+  color: #333;
+}
+
+.secondary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hidden {
+  display: none;
+}
+
+.score-card {
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+}
+
+.main-score {
+  font-size: 15px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.main-score strong {
+  color: #0066cc;
+  font-size: 18px;
+}
+
+.sub-scores {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #555;
+}
+
+.findings-container h3 {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+#findings-list {
+  list-style: none;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0;
+}
+
+#findings-list li {
+  background: white;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  border-left: 4px solid #e74c3c;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+#findings-list li.yüksek {
+  border-left-color: #e67e22;
+}
+
+#findings-list li.orta {
+  border-left-color: #f1c40f;
+}

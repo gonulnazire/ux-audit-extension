@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>UX Audit Tool</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h2>UX & Erişilebilirlik Denetimi</h2>
+    <p class="subtitle">Deterministik + Don Norman AI Analizi</p>
+
+    <div class="actions">
+      <button id="audit-btn" class="primary-btn">Sayfayı Denetle</button>
+      <button id="export-btn" class="secondary-btn" disabled>JSON İndir</button>
+    </div>
+
+    <div id="loading" class="hidden">Analiz yapılıyor, lütfen bekleyin...</div>
+
+    <div id="results-section" class="hidden">
+      <div class="score-card">
+        <div class="main-score">
+          <span>Toplam Skor:</span>
+          <strong id="final-score">-</strong>
+        </div>
+        <div class="sub-scores">
+          <div>Deterministik: <span id="det-score">-</span></div>
+          <div>AI (Norman): <span id="ai-score">-</span></div>
+        </div>
+      </div>
+
+      <div class="findings-container">
+        <h3>Bulgular ve İhlaller</h3>
+        <ul id="findings-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
